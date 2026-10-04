@@ -2,7 +2,7 @@ name: Build RootEncoder Debug APK
 on:
   push:
     branches: [ master ]
-  workflow_dispatch: # 网页手动触发
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,16 +12,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 11
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Configure gradle mirror
+        run: |
+          mkdir -p ~/.gradle
+          echo "allprojects { repositories { maven { url 'https://maven.aliyun.com/repository/google' } maven { url 'https://maven.aliyun.com/repository/public' } } }" > ~/.gradle/init.gradle
 
       - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --no-build-cache
+        run: ./gradlew :app:assembleDebug --no-build-cache --no-daemon
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
